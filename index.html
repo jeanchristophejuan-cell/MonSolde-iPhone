@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f7f8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Mon Solde">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+  <title>Mon Solde</title>
+</head>
+<body>
+  <main class="app" id="app">
+    <section id="onboarding" class="panel onboarding hidden" aria-labelledby="onboarding-title">
+      <div class="brand-mark">€</div>
+      <h1 id="onboarding-title">Bienvenue dans Mon Solde</h1>
+      <p class="muted">Indique le solde actuel de ton compte. Ensuite, chaque achat sera déduit immédiatement du montant disponible.</p>
+      <form id="onboarding-form">
+        <label for="start-balance">Solde actuel</label>
+        <div class="money-field">
+          <input id="start-balance" inputmode="decimal" autocomplete="off" placeholder="250,00" required>
+          <span>€</span>
+        </div>
+        <button class="primary full" type="submit">Commencer</button>
+      </form>
+    </section>
+
+    <section id="dashboard" class="hidden">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">MON COMPTE</p>
+          <h1>Mon Solde</h1>
+        </div>
+        <button id="settings-btn" class="icon-btn" type="button" aria-label="Réglages">⚙︎</button>
+      </header>
+
+      <section class="balance-card" aria-live="polite">
+        <p>Il te reste</p>
+        <div id="available-balance" class="balance-value">0,00 €</div>
+        <div class="status-row">
+          <div><span class="dot pending-dot"></span><span>En attente</span><strong id="pending-total">0,00 €</strong></div>
+          <div><span class="dot debited-dot"></span><span>Débité</span><strong id="debited-total">0,00 €</strong></div>
+        </div>
+      </section>
+
+      <section class="quick-actions">
+        <button id="add-purchase-btn" class="primary" type="button">+ Ajouter un achat</button>
+        <button id="add-money-btn" class="secondary" type="button">+ Ajouter de l’argent</button>
+      </section>
+
+      <section class="list-section">
+        <div class="section-heading">
+          <h2>Opérations</h2>
+          <span id="operation-count" class="muted">0</span>
+        </div>
+        <div id="operations-list" class="operations-list"></div>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="purchase-dialog">
+    <form method="dialog" id="purchase-form" class="dialog-card">
+      <div class="dialog-head">
+        <h2>Nouvel achat</h2>
+        <button class="icon-btn close-dialog" type="button" aria-label="Fermer">×</button>
+      </div>
+      <label for="purchase-date">Date</label>
+      <input id="purchase-date" type="date" required>
+
+      <label for="purchase-label">Magasin / libellé</label>
+      <input id="purchase-label" type="text" autocomplete="off" placeholder="Ex. Carrefour" maxlength="80" required>
+
+      <label for="purchase-amount">Montant</label>
+      <div class="money-field">
+        <input id="purchase-amount" inputmode="decimal" autocomplete="off" placeholder="12,50" required>
+        <span>€</span>
+      </div>
+      <p class="hint">L’achat sera ajouté en attente et déduit immédiatement de ce qu’il te reste.</p>
+      <button class="primary full" type="submit">Ajouter en attente</button>
+    </form>
+  </dialog>
+
+  <dialog id="money-dialog">
+    <form method="dialog" id="money-form" class="dialog-card">
+      <div class="dialog-head">
+        <h2>Ajouter de l’argent</h2>
+        <button class="icon-btn close-dialog" type="button" aria-label="Fermer">×</button>
+      </div>
+      <label for="money-label">Libellé</label>
+      <input id="money-label" type="text" autocomplete="off" placeholder="Ex. argent reçu" maxlength="80" value="Argent reçu" required>
+
+      <label for="money-amount">Montant</label>
+      <div class="money-field">
+        <input id="money-amount" inputmode="decimal" autocomplete="off" placeholder="50,00" required>
+        <span>€</span>
+      </div>
+      <button class="primary full" type="submit">Ajouter au solde</button>
+    </form>
+  </dialog>
+
+  <dialog id="settings-dialog">
+    <form method="dialog" id="settings-form" class="dialog-card">
+      <div class="dialog-head">
+        <h2>Réglages</h2>
+        <button class="icon-btn close-dialog" type="button" aria-label="Fermer">×</button>
+      </div>
+      <label for="adjust-balance">Ajuster « Il te reste »</label>
+      <div class="money-field">
+        <input id="adjust-balance" inputmode="decimal" autocomplete="off">
+        <span>€</span>
+      </div>
+      <p class="hint">Utile si le solde réel de la banque diffère. Cela ne supprime pas l’historique.</p>
+      <button class="secondary full" type="submit">Mettre à jour le solde</button>
+      <hr>
+      <button id="reset-btn" class="danger full" type="button">Effacer toutes les données</button>
+    </form>
+  </dialog>
+
+  <dialog id="confirm-dialog">
+    <form method="dialog" class="dialog-card compact">
+      <h2 id="confirm-title">Confirmer</h2>
+      <p id="confirm-text" class="muted"></p>
+      <div class="confirm-actions">
+        <button id="confirm-cancel" class="secondary" type="button">Annuler</button>
+        <button id="confirm-ok" class="danger" type="button">Supprimer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
